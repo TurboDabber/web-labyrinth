@@ -1,27 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using LabyrinthApi.Domain.Entities;
 
-namespace LabyrinthApi.Infrastructure.Data
+namespace LabyrinthApi.Infrastructure.Data;
+
+public class MazeDbContext : DbContext
 {
-    public class MazeDbContext : DbContext
+    public DbSet<Maze> Mazes { get; set; }
+    public MazeDbContext(DbContextOptions<MazeDbContext> options) : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        public DbSet<Maze> Mazes { get; set; }
-        public MazeDbContext(DbContextOptions<MazeDbContext> options) : base(options) { }
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Maze>()
+            .Ignore(m => m.MazeData);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        modelBuilder.Entity<Maze>(entity =>
         {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Maze>()
-                .Ignore(m => m.MazeData);
-
-            modelBuilder.Entity<Maze>(entity =>
-            {
-                entity.HasKey(m => m.Id);
-                entity.Property(m => m.Width).IsRequired();
-                entity.Property(m => m.Height).IsRequired();
-                entity.Property(m => m.MazeDataJson).IsRequired(); 
-                entity.Property(m => m.AlgorithmType).IsRequired();
-            });
-        }
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.Width).IsRequired();
+            entity.Property(m => m.Height).IsRequired();
+            entity.Property(m => m.MazeDataJson).IsRequired(); 
+            entity.Property(m => m.AlgorithmType).IsRequired();
+        });
     }
 }

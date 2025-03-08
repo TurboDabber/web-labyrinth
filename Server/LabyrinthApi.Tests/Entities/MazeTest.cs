@@ -2,8 +2,8 @@
 using LabyrinthApi.Domain.Enums;
 using LabyrinthApi.Domain.Entities;
 
-
 namespace LabyrinthTests.Entities;
+
 public class MazeTests
 {
     [Fact]
