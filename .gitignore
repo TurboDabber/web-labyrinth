@@ -1,0 +1,194 @@
+# Ignore Angular build/output directories
+/dist
+/tmp
+/out-tsc
+
+# Ignore Angular cache and environment files
+/.angular
+/.env
+
+# Ignore Node.js dependencies
+/node_modules
+
+# Ignore IDE specific files
+/.idea
+/.vscode
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore C# build/output directories
+/bin
+/obj
+/publish
+
+# Ignore NuGet packages and restore files
+/packages
+/*.nupkg
+/.nuget
+/NuGet.exe
+/NuGet.Config
+/.nupkg/
+
+# Ignore local development files
+/.local
+*.swp
+*.swo
+
+# Ignore logs and diagnostics
+/logs
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Ignore OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore Azure Functions
+/local.settings.json
+
+# Ignore Visual Studio Code workspace settings
+/.vscode/settings.json
+
+# Ignore npm debug logs
+npm-debug.log*
+
+# Ignore yarn files
+/yarn.lock
+/.yarn/cache
+/.yarn/unplugged
+/.yarn/build-state.yml
+/.yarn/install-state.gz
+.pnp.*
+
+# Ignore TypeScript cache
+/.tscache
+
+# Ignore Jest test coverage
+/coverage
+
+# Ignore Cypress test videos and screenshots
+/cypress/videos
+/cypress/screenshots
+
+# Ignore ESLint cache
+/.eslintcache
+
+# Ignore Prettier cache
+/.prettiercache
+
+# Ignore compiled files
+*.js
+*.js.map
+*.d.ts
+*.ngfactory.ts
+*.ngsummary.json
+*.ngstyle.ts
+*.shim.ngstyle.ts
+*.css
+*.css.map
+*.spec.ts
+*.spec.js
+
+# Ignore compiled C# files
+*.dll
+*.pdb
+*.exe
+*.xml
+*.cache
+*.resources
+
+# Ignore Azure Functions local settings
+/local.settings.json
+
+# Ignore Rider specific files
+/.idea
+*.iml
+*.ipr
+*.iws
+
+# Ignore Visual Studio cache/IDE files
+.vs/
+# Ignore build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Ignore NuGet packages and restore files
+/packages/
+*.nupkg
+.nuget/
+NuGet.exe
+NuGet.Config
+/.nupkg/
+
+# Ignore other temporary files
+*.cache
+*.resources
+*.pdb
+*.xml
+*.dll
+*.exe
+
+
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+# Only exists if Bazel was run
+/bazel-out
+
+# dependencies
+/node_modules
+
+# profiling files
+chrome-profiler-events*.json
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
+.DS_Store
+Thumbs.db
+
