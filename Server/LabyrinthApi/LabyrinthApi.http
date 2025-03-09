@@ -1,6 +1,0 @@
-@LabyrinthApi_HostAddress = http://localhost:5223
-
-GET {{LabyrinthApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
