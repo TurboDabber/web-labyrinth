@@ -1,0 +1,19 @@
+{
+  "runtime": "Default",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "fromDocument": {
+      "json": "swagger.json"
+    }
+  },
+  "codeGenerators": {
+    "openApiToTypeScriptClient": {
+      "className": "{controller}Service",
+      "moduleName": "app/services/api",
+      "namespace": "App.Services",
+      "type": "angular",
+      "template": "angular",
+      "output": "../../Client/maze-client/src/app/services/api/services.generated.ts"
+    }
+  }
+}
