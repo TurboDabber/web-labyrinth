@@ -1,6 +1,7 @@
 ﻿using LabyrinthApi.Domain.Entities;
 using LabyrinthApi.Domain.Interfaces;
 using LabyrinthApi.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace LabyrinthApi.Infrastructure.Repositories;
 
@@ -23,5 +24,11 @@ public class DbMazeRepository : IMazeRepository
         var added = await _context.Mazes.AddAsync(maze);
         await _context.SaveChangesAsync();
         return added.Entity.Id;
+    }
+
+    public async Task<Maze[]> GetAllAsync()
+    {
+        var currentMazes = await _context.Mazes.Select(x=>x).ToArrayAsync();
+        return currentMazes;
     }
 }

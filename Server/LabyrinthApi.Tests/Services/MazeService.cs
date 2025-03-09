@@ -80,7 +80,7 @@ public class MazeServiceTests
     public async Task GetMaze_Should_Return_Maze_When_Exists()
     {
         int mazeId = 1;
-        var mazeData = new int[][] { new int[]{ 0, 1 }, new int[]{ 1, 0 } };
+        var mazeData = new int[][] { new int[] { 0, 1 }, new int[] { 1, 0 } };
         var mazeJson = JsonConvert.SerializeObject(mazeData);
         var maze = new Maze
         {
@@ -134,5 +134,58 @@ public class MazeServiceTests
 
         Assert.Null(result);
         _mockMazeRepository.Verify(r => r.GetByIdAsync(mazeId), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAllMazes_Should_Return_Null_When_Maze_Not_Exist()
+    {
+        var result = await _mazeService.GetAllMazes();
+        Assert.NotNull(result);
+        Assert.Equal(result?.Length, 0);
+    }
+
+    [Fact]
+    public async Task GetAllMazes_Should_Return_List_When_Mazes_Exist()
+    {
+        var maze1 = new Maze
+        {
+            Id = 1,
+            Width = 10,
+            Height = 10,
+            MazeDataJson = "[[1, 0], [0, 1]]",
+            AlgorithmType = MazeAlgorithmType.RecursiveBacktracking
+        };
+
+        var maze2 = new Maze
+        {
+            Id = 2,
+            Width = 10,
+            Height = 10,
+            MazeDataJson = "[[0, 1], [1, 0]]",
+            AlgorithmType = MazeAlgorithmType.RecursiveBacktracking
+        };
+
+        var mazeList = new List<Maze> { maze1, maze2 };
+
+        _mockMazeRepository.Setup(r => r.AddAsync(It.IsAny<Maze>()))
+            .ReturnsAsync((Maze maze) =>
+            {
+                maze.Id = mazeList.Count + 1;
+                mazeList.Add(maze);
+                return maze.Id;
+            });
+
+        _mockMazeRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(mazeList.ToArray());
+
+        await _mazeService.GenerateMazeAsync(maze1.Width, maze1.Height, maze1.AlgorithmType);
+        await _mazeService.GenerateMazeAsync(maze2.Width, maze2.Height, maze2.AlgorithmType);
+        var result = await _mazeService.GetAllMazes();
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Length);
+        Assert.Contains(result, m => m.Id == maze1.Id && m.MazeDataJson == maze1.MazeDataJson);
+        Assert.Contains(result, m => m.Id == maze2.Id && m.MazeDataJson == maze2.MazeDataJson);
+        _mockMazeRepository.Verify(r => r.AddAsync(It.IsAny<Maze>()), Times.Exactly(2));
+        _mockMazeRepository.Verify(r => r.GetAllAsync(), Times.Once);
     }
 }

@@ -1,8 +1,8 @@
-﻿using LabyrinthApi.Domain.Entities;
+﻿using Newtonsoft.Json;
+using LabyrinthApi.Domain.Entities;
 using LabyrinthApi.Domain.Enums;
 using LabyrinthApi.Domain.Interfaces;
 using LabyrinthApi.Domain.Other;
-using Newtonsoft.Json;
 
 namespace LabyrinthApi.Application.Services;
 
@@ -57,5 +57,12 @@ public class MazeService : IMazeService
 
         var mazeData = JsonConvert.DeserializeObject<int[][]>(maze.MazeDataJson);
         return new Maze(maze.Id, maze.Width, maze.Height, mazeData ?? new int[][] { });
+    }
+
+    public async Task<Maze[]> GetAllMazes()
+    {
+        var mazes = await _mazeRepository.GetAllAsync();
+
+        return mazes.ToArray();
     }
 }

@@ -1,10 +1,9 @@
-﻿using LabyrinthApi.Application.Commands;
+﻿using MediatR;
+using LabyrinthApi.Application.Commands;
 using LabyrinthApi.Domain.Entities;
 using LabyrinthApi.Domain.Interfaces;
-using MediatR;
-using System.Reflection.Metadata.Ecma335;
 
-namespace LabyrinthApi.Application.Queries;
+namespace LabyrinthApi.Application.Queries.GenerateMazeQuery;
 
 public class GenerateMazeQuery : IRequestHandler<GenerateMazeCommand, Maze>
 {
@@ -23,6 +22,6 @@ public class GenerateMazeQuery : IRequestHandler<GenerateMazeCommand, Maze>
         {
             throw new ArgumentNullException(nameof(maze), "The new Maze could be not loaded");
         }
-        return maze;            
+        return maze;
     }
 }

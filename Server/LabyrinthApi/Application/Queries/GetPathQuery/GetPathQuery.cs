@@ -1,10 +1,9 @@
-﻿using LabyrinthApi.Application.Commands;
-using LabyrinthApi.Domain.Entities;
+﻿using MediatR;
+using LabyrinthApi.Application.Commands;
 using LabyrinthApi.Domain.Interfaces;
 using LabyrinthApi.Domain.Other;
-using MediatR;
 
-namespace LabyrinthApi.Application.Queries;
+namespace LabyrinthApi.Application.Queries.GetPathQuery;
 
 public class GetPathQuery : IRequestHandler<GetPathCommand, Point2D[]>
 {

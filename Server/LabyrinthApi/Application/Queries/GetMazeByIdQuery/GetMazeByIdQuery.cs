@@ -1,9 +1,9 @@
-﻿using LabyrinthApi.Application.Commands;
+﻿using MediatR;
+using LabyrinthApi.Application.Commands;
 using LabyrinthApi.Domain.Entities;
 using LabyrinthApi.Domain.Interfaces;
-using MediatR;
 
-namespace LabyrinthApi.Application.Queries;
+namespace LabyrinthApi.Application.Queries.GetMazeByIdQuery;
 
 public class GetMazeByIdQuery : IRequestHandler<GetMazeCommand, Maze?>
 {

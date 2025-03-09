@@ -1,7 +1,9 @@
-﻿using LabyrinthApi.Application.Commands;
-using LabyrinthApi.Domain.Other;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using LabyrinthApi.Application.Commands;
+using LabyrinthApi.Application.Queries.GetPathQuery;
+using LabyrinthApi.Domain.Entities;
+using LabyrinthApi.Domain.Other;
 
 [ApiController]
 [Route("api/maze")]
@@ -15,7 +17,9 @@ public class MazeController : ControllerBase
     }
 
     [HttpPost("mazes")]
-    public async Task<IActionResult> GenerateMaze([FromBody] GenerateMazeCommand command)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public async Task<ActionResult<int>> GenerateMaze([FromBody] GenerateMazeCommand command)
     {
         if (command.Width <= 0 || command.Height <= 0)
         {
@@ -26,8 +30,18 @@ public class MazeController : ControllerBase
         return Ok(new { MazeId = mazeId });
     }
 
+    [HttpGet("mazes")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Maze[]))]
+    public async Task<ActionResult<Maze[]>> GetAllMazes([FromQuery]GetAllMazes command)
+    {
+        var mazes = await _mediator.Send(command);
+        return Ok(mazes);
+    }
+
     [HttpGet("mazes/{id}")]
-    public async Task<IActionResult> GetMaze(int id)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Maze))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Maze>> GetMaze(int id)
     {
         var command = new GetMazeCommand { Id = id };
         var maze = await _mediator.Send(command);
@@ -41,7 +55,8 @@ public class MazeController : ControllerBase
     }
 
     [HttpGet("mazes/{id}/path")]
-    public async Task<IActionResult> GetMazePath(
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MazePathResponse))]
+    public async Task<ActionResult<MazePathResponse>> GetMazePath(
                int id,
                [FromQuery] int startX,
                [FromQuery] int startY,

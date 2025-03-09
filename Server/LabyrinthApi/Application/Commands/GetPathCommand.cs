@@ -1,5 +1,5 @@
-﻿using LabyrinthApi.Domain.Other;
-using MediatR;
+﻿using MediatR;
+using LabyrinthApi.Domain.Other;
 
 namespace LabyrinthApi.Application.Commands;
 

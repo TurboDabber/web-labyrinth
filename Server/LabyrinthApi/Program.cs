@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using LabyrinthApi.Infrastructure.Data;
 using LabyrinthApi.Domain.Interfaces;
 using LabyrinthApi.Application.Services;
 using LabyrinthApi.Infrastructure.Repositories;
-using LabyrinthApi.Application.Queries;
-using Microsoft.OpenApi.Models;
+using LabyrinthApi.Application.Queries.GenerateMazeQuery;
+using LabyrinthApi.Application.Queries.GetMazeByIdQuery;
+using LabyrinthApi.Application.Queries.GetPathQuery;
 
 var builder = WebApplication.CreateBuilder(args);
 

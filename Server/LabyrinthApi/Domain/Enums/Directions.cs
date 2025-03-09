@@ -1,7 +1,6 @@
-﻿namespace LabyrinthApi.Domain.Enums
+﻿namespace LabyrinthApi.Domain.Enums;
+
+public enum Directions
 {
-    public enum Directions
-    {
-        Up, Down, Left, Right
-    }
+    Up, Down, Left, Right
 }

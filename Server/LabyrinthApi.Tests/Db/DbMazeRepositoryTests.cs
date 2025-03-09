@@ -79,4 +79,35 @@ public class DbMazeRepositoryTests
         Assert.Equal(maze.MazeDataJson, result.MazeDataJson);
         Assert.Equal(maze.AlgorithmType, result.AlgorithmType);
     }
+
+    [Fact]
+    public async Task GetAllMazes_Should_Return_Maze_Array()
+    {
+        var maze1 = new Maze
+        {
+            Width = 10,
+            Height = 10,
+            MazeDataJson = "[[1, 0], [0, 0]]",
+            AlgorithmType = MazeAlgorithmType.RecursiveBacktracking
+        };
+        var maze2 = new Maze
+        {
+            Width = 10,
+            Height = 10,
+            MazeDataJson = "[[0, 1], [0, 0]]",
+            AlgorithmType = MazeAlgorithmType.RecursiveBacktracking
+        };
+
+        _context.Mazes.Add(maze1);
+        _context.Mazes.Add(maze2);
+        await _context.SaveChangesAsync();
+
+        var result = await _repository.GetAllAsync();
+
+        Assert.NotNull(result);
+        Assert.Contains(result, m => m.Id == maze1.Id);
+        Assert.Contains(result, m => m.Id == maze2.Id);
+        Assert.Contains(result, m => m.Id == maze1.Id && m.MazeDataJson == maze1.MazeDataJson);
+        Assert.Contains(result, m => m.Id == maze2.Id && m.MazeDataJson == maze2.MazeDataJson);
+    }
 }
