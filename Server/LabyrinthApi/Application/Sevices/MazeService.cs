@@ -1,11 +1,12 @@
 ﻿using LabyrinthApi.Domain.Entities;
 using LabyrinthApi.Domain.Enums;
 using LabyrinthApi.Domain.Interfaces;
+using LabyrinthApi.Domain.Other;
 using Newtonsoft.Json;
 
 namespace LabyrinthApi.Application.Services;
 
-public class MazeService
+public class MazeService : IMazeService
 {
     private readonly IMazeRepository _mazeRepository;
     private readonly IMazeGenerator _mazeGenerator;
@@ -34,17 +35,27 @@ public class MazeService
         return mazeResult;
     }
 
-    public async Task<List<(int, int)>> SolveMazeAsync(int mazeId, (int, int) start, (int, int) end)
+    public async Task<List<Point2D>> SolveMazeAsync(int mazeId, Point2D start, Point2D end)
     {
         var maze = await _mazeRepository.GetByIdAsync(mazeId);
         if (maze == null || maze.MazeDataJson == null)
-            return new List<(int, int)>();
+            return new List<Point2D>();
 
         var mazeData = JsonConvert.DeserializeObject<int[,]>(maze.MazeDataJson);
 
-        if(mazeData == null)  
-            return new List<(int, int)>();
-        
+        if (mazeData == null)
+            return new List<Point2D>();
+
         return _pathFinder.FindPath(mazeData, start, end);
+    }
+
+    public async Task<Maze?> GetMazeAsync(int mazeId)
+    {
+        var maze = await _mazeRepository.GetByIdAsync(mazeId);
+        if (maze == null || maze.MazeDataJson == null)
+            return null;
+
+        var mazeData = JsonConvert.DeserializeObject<int[,]>(maze.MazeDataJson);
+        return new Maze(maze.Width, maze.Height, mazeData ?? new int[0, 0]);
     }
 }

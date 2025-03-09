@@ -1,4 +1,5 @@
 ﻿using LabyrinthApi.Application.Services;
+using LabyrinthApi.Domain.Other;
 
 namespace LabyrinthApi.Tests.Application.Services;
 
@@ -11,19 +12,19 @@ public class DijkstraPathFinderTests
         {
             { 0, 1, 0 },
             { 0, 0, 0 },
-            { 1, 0, 0 }
+            { 1, 1, 0 }
         };
-        var expectedPath = new List<(int, int)>
+        var expectedPath = new List<Point2D>
             {
-                (0, 0),
-                (0, 1),
-                (1, 1),
-                (2, 1),
-                (2, 2)
+                new(0, 0),
+                new(0, 1),
+                new(1, 1),
+                new(2, 1),
+                new(2, 2)
             };
 
-        var start = (0, 0);
-        var end = (2, 2);
+        Point2D start = new(0, 0);
+        Point2D end = new(2, 2);
         var pathFinder = new DijkstraPathFinder();
 
         var path = pathFinder.FindPath(maze, start, end);
@@ -39,12 +40,12 @@ public class DijkstraPathFinderTests
     {
         var maze = new int[,]
         {
-            { 0, 1, 0 },
+            { 0, 1, 1 },
             { 1, 1, 1 },
-            { 0, 1, 0 }
+            { 1, 1, 0 }
         };
-        var start = (0, 0);
-        var end = (2, 2);
+        Point2D start = new(0, 0);
+        Point2D end = new(2, 2);
         var pathFinder = new DijkstraPathFinder();
 
         var path = pathFinder.FindPath(maze, start, end);

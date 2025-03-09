@@ -1,11 +1,12 @@
 ﻿using LabyrinthApi.Domain.Enums;
 using LabyrinthApi.Domain.Interfaces;
+using LabyrinthApi.Domain.Other;
 
 namespace LabyrinthApi.Application.Services;
 
 public class DijkstraPathFinder : IPathFinder
 {
-    public List<(int, int)> FindPath(int[,] maze, (int, int) start, (int, int) end)
+    public List<Point2D> FindPath(int[,] maze, Point2D start, Point2D end)
     {
         int height = maze.GetLength(0);
         int width = maze.GetLength(1);
@@ -18,52 +19,52 @@ public class DijkstraPathFinder : IPathFinder
                 distances[i, j] = int.MaxValue;
             }
         }
-        distances[start.Item2, start.Item1] = 0;
+        distances[start.x, start.y] = 0;
 
-        var queue = new PriorityQueue<(int, int), int>();
+        var queue = new PriorityQueue<Point2D, int>();
         queue.Enqueue(start, 0);
 
         while (queue.Count > 0)
         {
             var (x, y) = queue.Dequeue();
 
-            if (x == end.Item1 && y == end.Item2)
+            if (x == end.x && y == end.y)
             {
                 return ReconstructPath(distances, start, end);
             }
 
             foreach (var direction in Enum.GetValues(typeof(Directions)))
             {
-                var (newX, newY) = GetNewPosition(x, y, (Directions)direction);
+                Point2D newPoint = GetNewPosition(x, y, (Directions)direction);
 
-                if (IsInBounds(newX, newY, width, height) && maze[newY, newX] == 0)
+                if (IsInBounds(newPoint.x, newPoint.y, width, height) && maze[newPoint.y, newPoint.x] == 0)
                 {
                     int newDistance = distances[y, x] + 1;
 
-                    if (newDistance < distances[newY, newX])
+                    if (newDistance < distances[newPoint.y, newPoint.x])
                     {
-                        distances[newY, newX] = newDistance;
-                        queue.Enqueue((newX, newY), newDistance);
+                        distances[newPoint.y, newPoint.x] = newDistance;
+                        queue.Enqueue(newPoint, newDistance);
                     }
                 }
             }
         }
 
-        return new List<(int, int)>();
+        return new List<Point2D>();
     }
 
-    private (int, int) GetNewPosition(int x, int y, Directions direction)
+    private Point2D GetNewPosition(int x, int y, Directions direction)
     {
         switch (direction)
         {
             case Directions.Up:
-                return (x, y - 1);
+                return new(x, y - 1);
             case Directions.Down:
-                return (x, y + 1);
+                return new(x, y + 1);
             case Directions.Left:
-                return (x - 1, y);
+                return new(x - 1, y);
             case Directions.Right:
-                return (x + 1, y);
+                return new(x + 1, y);
             default:
                 throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
         }
@@ -74,14 +75,14 @@ public class DijkstraPathFinder : IPathFinder
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
-    private List<(int, int)> ReconstructPath(int[,] distances, (int, int) start, (int, int) end)
+    private List<Point2D> ReconstructPath(int[,] distances, Point2D start, Point2D end)
     {
-        var path = new List<(int, int)>();
-        var (x, y) = end;
-
-        while (x != start.Item1 || y != start.Item2)
+        var path = new List<Point2D>();
+        var x = end.x;
+        var y = end.y;
+        while (x != start.x || y != start.y)
         {
-            path.Add((x, y));
+            path.Add(new Point2D(x, y));
 
             foreach (var direction in Enum.GetValues(typeof(Directions)))
             {

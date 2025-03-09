@@ -1,6 +1,8 @@
-﻿namespace LabyrinthApi.Domain.Interfaces;
+﻿using LabyrinthApi.Domain.Other;
+
+namespace LabyrinthApi.Domain.Interfaces;
 
 public interface IPathFinder
 {
-    List<(int, int)> FindPath(int[,] maze, (int, int) start, (int, int) end);
+    List<Point2D> FindPath(int[,] maze, Point2D start, Point2D end);
 }

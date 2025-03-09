@@ -2,7 +2,9 @@
 using LabyrinthApi.Domain.Entities;
 using LabyrinthApi.Domain.Enums;
 using LabyrinthApi.Domain.Interfaces;
+using LabyrinthApi.Domain.Other;
 using Moq;
+using Newtonsoft.Json;
 
 namespace LabyrinthApi.Tests.Application.Services;
 
@@ -51,8 +53,8 @@ public class MazeServiceTests
     public async Task SolveMazeAsync_Should_Return_Path()
     {
         int mazeId = 1;
-        var start = (0, 0);
-        var end = (1, 1);
+        Point2D start = new(0, 0);
+        Point2D end = new(1, 1);
         var maze = new Maze
         {
             Id = mazeId,
@@ -61,7 +63,7 @@ public class MazeServiceTests
             MazeDataJson = "[[0, 1], [1, 0]]",
             AlgorithmType = MazeAlgorithmType.RecursiveBacktracking
         };
-        var path = new List<(int, int)> { start, end };
+        var path = new List<Point2D> { start, end };
 
         _mockMazeRepository.Setup(r => r.GetByIdAsync(mazeId)).ReturnsAsync(maze);
         _mockPathFinder.Setup(p => p.FindPath(It.IsAny<int[,]>(), start, end)).Returns(path);
@@ -72,5 +74,65 @@ public class MazeServiceTests
         Assert.Equal(path, result);
         _mockMazeRepository.Verify(r => r.GetByIdAsync(mazeId), Times.Once);
         _mockPathFinder.Verify(p => p.FindPath(It.IsAny<int[,]>(), start, end), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetMaze_Should_Return_Maze_When_Exists()
+    {
+        int mazeId = 1;
+        var mazeData = new int[,] { { 0, 1 }, { 1, 0 } };
+        var mazeJson = JsonConvert.SerializeObject(mazeData);
+        var maze = new Maze
+        {
+            Id = mazeId,
+            Width = 2,
+            Height = 2,
+            MazeDataJson = mazeJson,
+            AlgorithmType = MazeAlgorithmType.RecursiveBacktracking
+        };
+
+        _mockMazeRepository.Setup(r => r.GetByIdAsync(mazeId)).ReturnsAsync(maze);
+
+        var result = await _mazeService.GetMazeAsync(mazeId);
+
+        Assert.NotNull(result);
+        Assert.Equal(maze.Width, result.Width);
+        Assert.Equal(maze.Height, result.Height);
+        Assert.Equal(mazeData, result.MazeData);
+        _mockMazeRepository.Verify(r => r.GetByIdAsync(mazeId), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetMaze_Should_Return_Null_When_Maze_Does_Not_Exist()
+    {
+        int mazeId = 1;
+
+        _mockMazeRepository.Setup(r => r.GetByIdAsync(mazeId)).ReturnsAsync((Maze?)null);
+
+        var result = await _mazeService.GetMazeAsync(mazeId);
+
+        Assert.Null(result);
+        _mockMazeRepository.Verify(r => r.GetByIdAsync(mazeId), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetMaze_Should_Return_Null_When_MazeDataJson_Is_Null()
+    {
+        int mazeId = 1;
+        var maze = new Maze
+        {
+            Id = mazeId,
+            Width = 2,
+            Height = 2,
+            MazeDataJson = null,
+            AlgorithmType = MazeAlgorithmType.RecursiveBacktracking
+        };
+
+        _mockMazeRepository.Setup(r => r.GetByIdAsync(mazeId)).ReturnsAsync(maze);
+
+        var result = await _mazeService.GetMazeAsync(mazeId);
+
+        Assert.Null(result);
+        _mockMazeRepository.Verify(r => r.GetByIdAsync(mazeId), Times.Once);
     }
 }
