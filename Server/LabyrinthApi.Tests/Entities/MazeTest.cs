@@ -36,20 +36,20 @@ public class MazeTests
         var mazeData = maze.MazeData;
 
         Assert.NotNull(mazeData);
-        Assert.Equal(0, mazeData[0, 0]);
-        Assert.Equal(1, mazeData[0, 1]);
-        Assert.Equal(1, mazeData[1, 0]);
-        Assert.Equal(0, mazeData[1, 1]);
+        Assert.Equal(0, mazeData[0][0]);
+        Assert.Equal(1, mazeData[0][1]);
+        Assert.Equal(1, mazeData[1][0]);
+        Assert.Equal(0, mazeData[1][1]);
     }
 
     [Fact]
     public void MazeData_Should_Convert_Array_To_Json()
     {
         var maze = new Maze();
-        var mazeData = new int[,]
+        var mazeData = new int[][]
         {
-                { 0, 1 },
-                { 1, 0 }
+                new int[]{ 0, 1 },
+                new int[]{ 1, 0 }
         };
 
         maze.MazeData = mazeData;

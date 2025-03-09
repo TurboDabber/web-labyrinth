@@ -21,17 +21,18 @@ public class Maze
     public string? MazeDataJson { get; set; }
 
     [NotMapped]
-    public int[,] MazeData
+    public int[][] MazeData
     {
-        get => MazeDataJson != null ? (JsonConvert.DeserializeObject<int[,]>(MazeDataJson) ?? new int[,] { }) : new int[,] { };
+        get => MazeDataJson != null ? (JsonConvert.DeserializeObject<int[][]>(MazeDataJson) ?? new int[][] {}) : new int[][] { };
         set => MazeDataJson = JsonConvert.SerializeObject(value);
     }
 
     [Required]
     public MazeAlgorithmType AlgorithmType { get; set; }
     public Maze() { }
-    public Maze(int width, int height, int[,] mazeData, MazeAlgorithmType type = MazeAlgorithmType.RecursiveBacktracking)
+    public Maze(int id, int width, int height, int [][] mazeData, MazeAlgorithmType type = MazeAlgorithmType.RecursiveBacktracking)
     {
+        Id = id;
         Width = width;
         Height = height;
         MazeData = mazeData;

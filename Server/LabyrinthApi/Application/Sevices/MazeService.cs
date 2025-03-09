@@ -55,7 +55,7 @@ public class MazeService : IMazeService
         if (maze == null || maze.MazeDataJson == null)
             return null;
 
-        var mazeData = JsonConvert.DeserializeObject<int[,]>(maze.MazeDataJson);
-        return new Maze(maze.Width, maze.Height, mazeData ?? new int[0, 0]);
+        var mazeData = JsonConvert.DeserializeObject<int[][]>(maze.MazeDataJson);
+        return new Maze(maze.Id, maze.Width, maze.Height, mazeData ?? new int[][] { });
     }
 }

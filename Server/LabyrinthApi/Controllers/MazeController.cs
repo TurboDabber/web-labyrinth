@@ -14,7 +14,7 @@ public class MazeController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost("maze/generate")]
+    [HttpPost("mazes")]
     public async Task<IActionResult> GenerateMaze([FromBody] GenerateMazeCommand command)
     {
         if (command.Width <= 0 || command.Height <= 0)
@@ -26,7 +26,7 @@ public class MazeController : ControllerBase
         return Ok(new { MazeId = mazeId });
     }
 
-    [HttpGet("maze/{id}")]
+    [HttpGet("mazes/{id}")]
     public async Task<IActionResult> GetMaze(int id)
     {
         var command = new GetMazeCommand { Id = id };
@@ -40,7 +40,7 @@ public class MazeController : ControllerBase
         return Ok(maze);
     }
 
-    [HttpGet("{id}/path")]
+    [HttpGet("mazes/{id}/path")]
     public async Task<IActionResult> GetMazePath(
                int id,
                [FromQuery] int startX,

@@ -80,7 +80,7 @@ public class MazeServiceTests
     public async Task GetMaze_Should_Return_Maze_When_Exists()
     {
         int mazeId = 1;
-        var mazeData = new int[,] { { 0, 1 }, { 1, 0 } };
+        var mazeData = new int[][] { new int[]{ 0, 1 }, new int[]{ 1, 0 } };
         var mazeJson = JsonConvert.SerializeObject(mazeData);
         var maze = new Maze
         {
