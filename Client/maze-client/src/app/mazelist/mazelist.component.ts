@@ -50,7 +50,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
     }
 
     .maze-list.scrollable {
-      max-height: 300px;
+      max-height: 670px;
       overflow-y: auto;
     }
 
