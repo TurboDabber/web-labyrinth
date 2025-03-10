@@ -1,0 +1,34 @@
+<div class="maze-list-container">
+    <div class="maze-controls">
+        <form [formGroup]="mazeForm" (ngSubmit)="generateMaze()">
+            <div class="input-group">
+                <label for="width">Width:</label>
+                <input id="width" type="number" formControlName="width" placeholder="Enter odd width > 0" />
+                <div *ngIf="widthControl.invalid && widthControl.touched" class="error-message">
+                    Width must be an odd number greater than 0.
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="height">Height:</label>
+                <input id="height" type="number" formControlName="height" placeholder="Enter odd height > 0" />
+                <div *ngIf="heightControl.invalid && heightControl.touched" class="error-message">
+                    Height must be an odd number greater than 0.
+                </div>
+            </div>
+
+            <button class="generate-button" [disabled]="mazeForm.invalid || isGenerating" type="submit">
+                Generate
+            </button>
+        </form>
+    </div>
+
+    <div class="maze-list" [class.scrollable]="mazes.length > 5">
+        <div *ngFor="let maze of mazes" class="maze-button" [class.selected]="selectedMazeId === maze.id"
+            (click)="selectMaze(maze.id!)">
+            Maze {{ maze.id }} ({{ maze.width }}x{{ maze.height }})
+        </div>
+    </div>
+
+    <div *ngIf="isGenerating" class="loading-indicator">Generating maze...</div>
+</div>

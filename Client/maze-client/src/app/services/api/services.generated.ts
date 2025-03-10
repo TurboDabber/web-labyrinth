@@ -10,14 +10,15 @@
 
 import { mergeMap as _observableMergeMap, catchError as _observableCatch } from 'rxjs/operators';
 import { Observable, throwError as _observableThrow, of as _observableOf } from 'rxjs';
-import { Injectable, Inject, Optional, OpaqueToken } from '@angular/core';
+import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
 
-export module app/services/api {
-namespace App.Services {
-export const API_BASE_URL = new OpaqueToken('API_BASE_URL');
 
-@Injectable()
+export const API_BASE_URL = new InjectionToken('API_BASE_URL');
+
+@Injectable({
+    providedIn: 'root', 
+  })
 export class Service {
     private http: HttpClient;
     private baseUrl: string;
@@ -32,7 +33,7 @@ export class Service {
      * @param body (optional) 
      * @return OK
      */
-    mazesPOST(body: GenerateMazeCommand | undefined): Observable<void> {
+    mazesPOST(body: GenerateMazeCommand | undefined): Observable<number> {
         let url_ = this.baseUrl + "/api/maze/mazes";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -44,6 +45,7 @@ export class Service {
             responseType: "blob",
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
+                "Accept": "text/plain"
             })
         };
 
@@ -54,14 +56,14 @@ export class Service {
                 try {
                     return this.processMazesPOST(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<number>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<number>;
         }));
     }
 
-    protected processMazesPOST(response: HttpResponseBase): Observable<void> {
+    protected processMazesPOST(response: HttpResponseBase): Observable<number> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -70,20 +72,95 @@ export class Service {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result400 = resultData400 !== undefined ? resultData400 : <any>null;
+    
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf<number>(null as any);
+    }
+
+    /**
+     * @param command (optional) 
+     * @return OK
+     */
+    mazesAll(command: GetAllMazes | undefined): Observable<Maze[]> {
+        let url_ = this.baseUrl + "/api/maze/mazes?";
+        if (command === null)
+            throw new Error("The parameter 'command' cannot be null.");
+        else if (command !== undefined)
+            url_ += "command=" + encodeURIComponent("" + command) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMazesAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMazesAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Maze[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Maze[]>;
+        }));
+    }
+
+    protected processMazesAll(response: HttpResponseBase): Observable<Maze[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Maze.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<Maze[]>(null as any);
     }
 
     /**
      * @return OK
      */
-    mazesGET(id: number): Observable<void> {
+    mazesGET(id: number): Observable<Maze> {
         let url_ = this.baseUrl + "/api/maze/mazes/{id}";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -94,6 +171,7 @@ export class Service {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Accept": "text/plain"
             })
         };
 
@@ -104,14 +182,14 @@ export class Service {
                 try {
                     return this.processMazesGET(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<Maze>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<Maze>;
         }));
     }
 
-    protected processMazesGET(response: HttpResponseBase): Observable<void> {
+    protected processMazesGET(response: HttpResponseBase): Observable<Maze> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -120,14 +198,24 @@ export class Service {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Maze.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf<Maze>(null as any);
     }
 
     /**
@@ -137,7 +225,7 @@ export class Service {
      * @param endY (optional) 
      * @return OK
      */
-    path(id: number, startX: number | undefined, startY: number | undefined, endX: number | undefined, endY: number | undefined): Observable<void> {
+    path(id: number, startX: number | undefined, startY: number | undefined, endX: number | undefined, endY: number | undefined): Observable<MazePathResponse> {
         let url_ = this.baseUrl + "/api/maze/mazes/{id}/path?";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -164,6 +252,7 @@ export class Service {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Accept": "text/plain"
             })
         };
 
@@ -174,14 +263,14 @@ export class Service {
                 try {
                     return this.processPath(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<MazePathResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<MazePathResponse>;
         }));
     }
 
-    protected processPath(response: HttpResponseBase): Observable<void> {
+    protected processPath(response: HttpResponseBase): Observable<MazePathResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -190,14 +279,17 @@ export class Service {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MazePathResponse.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf<MazePathResponse>(null as any);
     }
 }
 
@@ -239,6 +331,252 @@ export class GenerateMazeCommand implements IGenerateMazeCommand {
 export interface IGenerateMazeCommand {
     width?: number;
     height?: number;
+}
+
+export class GetAllMazes implements IGetAllMazes {
+
+    constructor(data?: IGetAllMazes) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): GetAllMazes {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetAllMazes();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IGetAllMazes {
+}
+
+export class Maze implements IMaze {
+    id?: number;
+    width!: number;
+    height!: number;
+    mazeDataJson!: string;
+    mazeData?: number[][] | undefined;
+    algorithmType!: MazeAlgorithmType;
+
+    constructor(data?: IMaze) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.mazeDataJson = _data["mazeDataJson"];
+            if (Array.isArray(_data["mazeData"])) {
+                this.mazeData = [] as any;
+                for (let item of _data["mazeData"])
+                    this.mazeData!.push(item);
+            }
+            this.algorithmType = _data["algorithmType"];
+        }
+    }
+
+    static fromJS(data: any): Maze {
+        data = typeof data === 'object' ? data : {};
+        let result = new Maze();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["mazeDataJson"] = this.mazeDataJson;
+        if (Array.isArray(this.mazeData)) {
+            data["mazeData"] = [];
+            for (let item of this.mazeData)
+                data["mazeData"].push(item);
+        }
+        data["algorithmType"] = this.algorithmType;
+        return data;
+    }
+}
+
+export interface IMaze {
+    id?: number;
+    width: number;
+    height: number;
+    mazeDataJson: string;
+    mazeData?: number[][] | undefined;
+    algorithmType: MazeAlgorithmType;
+}
+
+export enum MazeAlgorithmType {
+    _0 = 0,
+}
+
+export class MazePathResponse implements IMazePathResponse {
+    path?: Point2D[] | undefined;
+
+    constructor(data?: IMazePathResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["path"])) {
+                this.path = [] as any;
+                for (let item of _data["path"])
+                    this.path!.push(Point2D.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MazePathResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new MazePathResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.path)) {
+            data["path"] = [];
+            for (let item of this.path)
+                data["path"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IMazePathResponse {
+    path?: Point2D[] | undefined;
+}
+
+export class Point2D implements IPoint2D {
+    x?: number;
+    y?: number;
+
+    constructor(data?: IPoint2D) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.x = _data["x"];
+            this.y = _data["y"];
+        }
+    }
+
+    static fromJS(data: any): Point2D {
+        data = typeof data === 'object' ? data : {};
+        let result = new Point2D();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["x"] = this.x;
+        data["y"] = this.y;
+        return data;
+    }
+}
+
+export interface IPoint2D {
+    x?: number;
+    y?: number;
+}
+
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
+    }
+
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data;
+    }
+}
+
+export interface IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
 }
 
 export class ApiException extends Error {
@@ -286,7 +624,4 @@ function blobToText(blob: any): Observable<string> {
             reader.readAsText(blob);
         }
     });
-}
-
-}
 }

@@ -27,5 +27,8 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true,
     "enableIvy": true
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }
