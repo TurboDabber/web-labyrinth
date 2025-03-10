@@ -8,6 +8,7 @@ using LabyrinthApi.Application.Queries.GenerateMazeQuery;
 using LabyrinthApi.Application.Queries.GetMazeByIdQuery;
 using LabyrinthApi.Application.Queries.GetPathQuery;
 
+const string AllowedOrigin = "_angularOrigin";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MazeDbContext>(options =>
@@ -29,8 +30,20 @@ builder.Services.AddTransient<GetPathQuery>();
 
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AllowedOrigin,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
+
+app.UseCors(AllowedOrigin);
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

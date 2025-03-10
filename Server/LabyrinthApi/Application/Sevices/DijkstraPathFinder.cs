@@ -1,104 +1,102 @@
-﻿using LabyrinthApi.Domain.Enums;
-using LabyrinthApi.Domain.Interfaces;
+﻿using LabyrinthApi.Domain.Interfaces;
 using LabyrinthApi.Domain.Other;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LabyrinthApi.Application.Services;
 
-public class DijkstraPathFinder : IPathFinder
+public class DijkstraPathFinder: IPathFinder
 {
     public List<Point2D> FindPath(int[,] maze, Point2D start, Point2D end)
     {
-        int height = maze.GetLength(0);
-        int width = maze.GetLength(1);
+        if (start.Equals(end))
+            return new List<Point2D> { start };
 
-        var distances = new int[height, width];
-        for (int i = 0; i < height; i++)
+        int rows = maze.GetLength(0);
+        int cols = maze.GetLength(1);
+
+        // Directions for moving in the maze (up, down, left, right)
+        var directions = new[]
         {
-            for (int j = 0; j < width; j++)
+            new Point2D(0, 1),   // Right
+            new Point2D(1, 0),   // Down
+            new Point2D(0, -1),  // Left
+            new Point2D(-1, 0)   // Up
+        };
+
+        var priorityQueue = new PriorityQueue<(int distance, Point2D point), int>();
+        var distanceMap = new Dictionary<Point2D, int>();
+        var previousMap = new Dictionary<Point2D, Point2D>();
+
+        // Initialize distances to infinity for all points and start with distance 0 for the start point.
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
             {
-                distances[i, j] = int.MaxValue;
+                distanceMap[new Point2D(i, j)] = int.MaxValue;
             }
         }
-        distances[start.x, start.y] = 0;
+        distanceMap[start] = 0;
 
-        var queue = new PriorityQueue<Point2D, int>();
-        queue.Enqueue(start, 0);
+        // Push the starting point into the priority queue.
+        priorityQueue.Enqueue((0, start), 0);
 
-        while (queue.Count > 0)
+        while (priorityQueue.Count > 0)
         {
-            var (x, y) = queue.Dequeue();
+            var (currentDistance, currentPoint) = priorityQueue.Dequeue();
 
-            if (x == end.x && y == end.y)
+            // If we have reached the end, reconstruct and return the path.
+            if (currentPoint.Equals(end))
             {
-                return ReconstructPath(distances, start, end);
+                return ReconstructPath(previousMap, start, end);
             }
 
-            foreach (var direction in Enum.GetValues(typeof(Directions)))
+            // Explore the neighboring cells (up, down, left, right).
+            foreach (var direction in directions)
             {
-                Point2D newPoint = GetNewPosition(x, y, (Directions)direction);
+                var neighbor = new Point2D(currentPoint.x + direction.x, currentPoint.y + direction.y);
 
-                if (IsInBounds(newPoint.x, newPoint.y, width, height) && maze[newPoint.y, newPoint.x] == 0)
+                // Check if the neighbor is within bounds and not a wall.
+                if (IsValid(neighbor, maze, rows, cols))
                 {
-                    int newDistance = distances[y, x] + 1;
-
-                    if (newDistance < distances[newPoint.y, newPoint.x])
+                    int newDistance = currentDistance + 1; // Each move has a cost of 1.
+                    if (newDistance < distanceMap[neighbor])
                     {
-                        distances[newPoint.y, newPoint.x] = newDistance;
-                        queue.Enqueue(newPoint, newDistance);
+                        distanceMap[neighbor] = newDistance;
+                        previousMap[neighbor] = currentPoint;
+                        priorityQueue.Enqueue((newDistance, neighbor), newDistance);
                     }
                 }
             }
         }
 
+        // If no path is found, return an empty list.
         return new List<Point2D>();
     }
 
-    private Point2D GetNewPosition(int x, int y, Directions direction)
+    private bool IsValid(Point2D point, int[,] maze, int rows, int cols)
     {
-        switch (direction)
-        {
-            case Directions.Up:
-                return new(x, y - 1);
-            case Directions.Down:
-                return new(x, y + 1);
-            case Directions.Left:
-                return new(x - 1, y);
-            case Directions.Right:
-                return new(x + 1, y);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-        }
+        // Check if the point is within the bounds of the maze and not a wall.
+        return point.x >= 0 && point.x < rows && point.y >= 0 && point.y < cols && maze[point.x, point.y] == 0;
     }
 
-    private bool IsInBounds(int x, int y, int width, int height)
-    {
-        return x >= 0 && x < width && y >= 0 && y < height;
-    }
-
-    private List<Point2D> ReconstructPath(int[,] distances, Point2D start, Point2D end)
+    private List<Point2D> ReconstructPath(Dictionary<Point2D, Point2D> previousMap, Point2D start, Point2D end)
     {
         var path = new List<Point2D>();
-        var x = end.x;
-        var y = end.y;
-        while (x != start.x || y != start.y)
+        var currentPoint = end;
+
+        // Reconstruct the path from end to start by following the previous points.
+        while (currentPoint != null && !currentPoint.Equals(start))
         {
-            path.Add(new Point2D(x, y));
-
-            foreach (var direction in Enum.GetValues(typeof(Directions)))
-            {
-                var (newX, newY) = GetNewPosition(x, y, (Directions)direction);
-
-                if (IsInBounds(newX, newY, distances.GetLength(1), distances.GetLength(0)) &&
-                    distances[newY, newX] == distances[y, x] - 1)
-                {
-                    x = newX;
-                    y = newY;
-                    break;
-                }
-            }
+            path.Add(currentPoint);
+            currentPoint = previousMap.ContainsKey(currentPoint) ? previousMap[currentPoint] : null;
         }
 
-        path.Add(start);
+        if (currentPoint != null)
+            path.Add(start);
+
+        // Reverse the path to get it from start to end.
         path.Reverse();
         return path;
     }
