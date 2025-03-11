@@ -10,7 +10,10 @@ import { Maze, Service, MazePathResponse, Point2D } from '../services/api/servic
     }
     
     .button-reset{
-      margin-bottom: 10px;
+      margin-top: 25px;
+      max-width: 90px;
+      max-height: 45px;
+      margin-left: 40px;
     }
 
     .wall {
@@ -33,6 +36,8 @@ import { Maze, Service, MazePathResponse, Point2D } from '../services/api/servic
       background-color: blue; 
     }
     .maze-container {
+      display: flex;
+      flex-direction: row;
       margin-left: 50px;
       margin-top: 50px;
     }

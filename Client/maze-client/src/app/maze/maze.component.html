@@ -1,15 +1,17 @@
 <div class="maze-container" *ngIf="maze">
+  <span>
+    <div *ngFor="let row of maze.mazeData; let i = index" class="row">
+      <div
+        *ngFor="let cell of row; let j = index"
+        [ngClass]="{
+          'wall': cell === 1,
+          'ground': cell === 0,
+          'selected': isSelected(i, j),
+          'path': isPath(i, j)
+        }"
+        (click)="onCellClick(i, j)"
+      ></div>
+    </div>
+  </span>
   <button class="button-reset" (click)="resetSelection()">Reset Selection</button>
-  <div *ngFor="let row of maze.mazeData; let i = index" class="row">
-    <div
-      *ngFor="let cell of row; let j = index"
-      [ngClass]="{
-        'wall': cell === 1,
-        'ground': cell === 0,
-        'selected': isSelected(i, j),
-        'path': isPath(i, j)
-      }"
-      (click)="onCellClick(i, j)"
-    ></div>
-  </div>
 </div>
