@@ -22,6 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Labyrinth API", Version = "v1" });
+    c.SchemaFilter<FixMissingSwaggerProperties>();
 });
 
 builder.Services.AddTransient<GetMazeByIdQuery>();
@@ -52,7 +53,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.MapControllers();
 
 app.MapControllers();
 
