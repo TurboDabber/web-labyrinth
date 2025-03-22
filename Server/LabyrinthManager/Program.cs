@@ -29,8 +29,10 @@ class Program
                 CreateNoWindow = true
             }
         };
-
+        process.StartInfo.RedirectStandardError = true;
+        process.ErrorDataReceived += (sender, e) => Console.WriteLine("Error: " + e.Data);
         process.Start();
+        process.BeginErrorReadLine();
         process.WaitForExit();
 
         Console.WriteLine("Finish!");

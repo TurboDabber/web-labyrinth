@@ -1,0 +1,26 @@
+{
+  "runtime": "Net90",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "fromDocument": {
+      "json": "C:\\Users\\Pawel\\source\\repos\\Labirynth\\web-labyrinth\\Server\\LabyrinthApi\\swagger\\v1\\swagger.json"
+    }
+  },
+  "codeGenerators": {
+    "openApiToTypeScriptClient": {
+      "className": "ApiClient",
+      "moduleName": "api-client",
+      "namespace": "App.Services.Api",
+      "output": "C:\\Users\\Pawel\\source\\repos\\Labirynth\\web-labyrinth\\Client\\maze-client\\src\\app\\services\\api\\services.generated.ts",
+      "template": "Angular",
+      "handleReferences": true,
+      "generateDefaultValues": true,
+      "generateOptionalParameters": true,
+      "typeStyle": "Interface",
+      "markOptionalProperties": true,
+      "useTransformOptionsMethod": true,
+      "useSingletonProvider": true,
+      "injectionTokenType": "InjectionToken"
+    }
+  }
+}
