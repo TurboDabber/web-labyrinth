@@ -7,6 +7,7 @@ using LabyrinthApi.Infrastructure.Repositories;
 using LabyrinthApi.Application.Queries.GenerateMazeQuery;
 using LabyrinthApi.Application.Queries.GetMazeByIdQuery;
 using LabyrinthApi.Application.Queries.GetPathQuery;
+using LabyrinthApi.swagger;
 
 const string AllowedOrigin = "_angularOrigin";
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Labyrinth API", Version = "v1" });
     c.SchemaFilter<FixMissingSwaggerProperties>();
+    c.SupportNonNullableReferenceTypes();
+    c.SchemaFilter<NonNullablePathSchemaFilter>();
+    c.SchemaFilter<NonNullablePoint2DSchemaFilter>();
 });
 
 builder.Services.AddTransient<GetMazeByIdQuery>();

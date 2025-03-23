@@ -39,14 +39,14 @@ public class RecBacktrackingGeneratorTests
 
         if (startPoints.Count == 2)
         {
-            Assert.NotEqual(-1, startPoints[0].x);
-            Assert.NotEqual(-1, startPoints[0].y);
-            Assert.NotEqual(-1, startPoints[1].x);
-            Assert.NotEqual(-1, startPoints[1].y);
-            int startX = startPoints[0].x;
-            int startY = startPoints[0].y;
-            int endX = startPoints[1].x;
-            int endY = startPoints[1].y;
+            Assert.NotEqual(-1, startPoints[0].X);
+            Assert.NotEqual(-1, startPoints[0].Y);
+            Assert.NotEqual(-1, startPoints[1].X);
+            Assert.NotEqual(-1, startPoints[1].Y);
+            int startX = startPoints[0].X;
+            int startY = startPoints[0].Y;
+            int endX = startPoints[1].X;
+            int endY = startPoints[1].Y;
 
             FloodFill(maze, startX, startY);
 
@@ -109,7 +109,7 @@ public class RecBacktrackingGeneratorTests
             {
                 if (maze[i, j] == 0)
                 {
-                    if (startPoint.x == -1 && startPoint.y == -1)
+                    if (startPoint.X == -1 && startPoint.Y == -1)
                     {
                         startPoint = new Point2D(j, i);
                     }

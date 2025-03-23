@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <Target Name="NSwag" BeforeTargets="Build">
-    <Exec Command="dotnet nswag run nswag.json" />
+
   </Target>
   <ItemGroup>
     <PackageReference Include="NSwag.MSBuild" Version="14.2.0">

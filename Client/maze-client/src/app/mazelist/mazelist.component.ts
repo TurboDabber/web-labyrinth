@@ -1,5 +1,6 @@
+import { Maze } from '../services/api/services.generated';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { Maze, Service, GenerateMazeCommand } from '../services/api/services.generated';
+import { api_client } from '../services/api/services.generated';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({

@@ -9,12 +9,10 @@
 // ReSharper disable InconsistentNaming
 
 import { mergeMap as _observableMergeMap, catchError as _observableCatch } from 'rxjs/operators';
-import { Observable, from as _observableFrom, throwError as _observableThrow, of as _observableOf } from 'rxjs';
+import { Observable, throwError as _observableThrow, of as _observableOf } from 'rxjs';
 import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
 
-export module api-client {
-namespace App.Services.Api {
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 @Injectable({
@@ -50,9 +48,7 @@ export class ApiClient {
             })
         };
 
-        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
-            return this.http.request("post", url_, transformedOptions_);
-        })).pipe(_observableMergeMap((response_: any) => {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processMazesPOST(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -76,13 +72,17 @@ export class ApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver) as number;
+            let resultData200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
             return _observableOf(result200);
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result400: any = null;
-            result400 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver) as string;
+            let resultData400 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver);
+                result400 = resultData400 !== undefined ? resultData400 : <any>null;
+    
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -113,9 +113,7 @@ export class ApiClient {
             })
         };
 
-        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
-            return this.http.request("get", url_, transformedOptions_);
-        })).pipe(_observableMergeMap((response_: any) => {
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processMazesAll(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -140,7 +138,15 @@ export class ApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver) as Maze[];
+            let resultData200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Maze.fromJS(item, _mappings));
+            }
+            else {
+                result200 = <any>null;
+            }
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -169,9 +175,7 @@ export class ApiClient {
             })
         };
 
-        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
-            return this.http.request("get", url_, transformedOptions_);
-        })).pipe(_observableMergeMap((response_: any) => {
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processMazesGET(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -196,13 +200,15 @@ export class ApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver) as Maze;
+            let resultData200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver);
+            result200 = Maze.fromJS(resultData200, _mappings);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result404: any = null;
-            result404 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver) as ProblemDetails;
+            let resultData404 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404, _mappings);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -251,9 +257,7 @@ export class ApiClient {
             })
         };
 
-        return _observableFrom(this.transformOptions(options_)).pipe(_observableMergeMap(transformedOptions_ => {
-            return this.http.request("get", url_, transformedOptions_);
-        })).pipe(_observableMergeMap((response_: any) => {
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processPath(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -278,7 +282,8 @@ export class ApiClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver) as MazePathResponse;
+            let resultData200 = _responseText === "" ? null : jsonParse(_responseText, this.jsonParseReviver);
+            result200 = MazePathResponse.fromJS(resultData200, _mappings);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -290,20 +295,131 @@ export class ApiClient {
     }
 }
 
-export interface GenerateMazeCommand {
+export class GenerateMazeCommand implements IGenerateMazeCommand {
+    width?: number;
+    height?: number;
+
+    constructor(data?: IGenerateMazeCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+        if (_data) {
+            this.width = _data["width"];
+            this.height = _data["height"];
+        }
+    }
+
+    static fromJS(data: any, _mappings?: any): GenerateMazeCommand | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<GenerateMazeCommand>(data, _mappings, GenerateMazeCommand);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["width"] = this.width;
+        data["height"] = this.height;
+        return data;
+    }
+}
+
+export interface IGenerateMazeCommand {
     width?: number;
     height?: number;
 }
 
-export interface GetAllMazes {
+export class GetAllMazes implements IGetAllMazes {
+
+    constructor(data?: IGetAllMazes) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+    }
+
+    static fromJS(data: any, _mappings?: any): GetAllMazes | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<GetAllMazes>(data, _mappings, GetAllMazes);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
 }
 
-export interface Maze {
+export interface IGetAllMazes {
+}
+
+export class Maze implements IMaze {
+    id?: number;
+    width!: number;
+    height!: number;
+    mazeDataJson!: string;
+    mazeData?: number[][];
+    algorithmType!: MazeAlgorithmType;
+
+    constructor(data?: IMaze) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.mazeDataJson = _data["mazeDataJson"];
+            if (Array.isArray(_data["mazeData"])) {
+                this.mazeData = [] as any;
+                for (let item of _data["mazeData"])
+                    this.mazeData!.push(item);
+            }
+            this.algorithmType = _data["algorithmType"];
+        }
+    }
+
+    static fromJS(data: any, _mappings?: any): Maze | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<Maze>(data, _mappings, Maze);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["mazeDataJson"] = this.mazeDataJson;
+        if (Array.isArray(this.mazeData)) {
+            data["mazeData"] = [];
+            for (let item of this.mazeData)
+                data["mazeData"].push(item);
+        }
+        data["algorithmType"] = this.algorithmType;
+        return data;
+    }
+}
+
+export interface IMaze {
     id?: number;
     width: number;
     height: number;
     mazeDataJson: string;
-    mazeData?: number[][] | undefined;
+    mazeData?: number[][];
     algorithmType: MazeAlgorithmType;
 }
 
@@ -311,16 +427,139 @@ export enum MazeAlgorithmType {
     _0 = 0,
 }
 
-export interface MazePathResponse {
-    path?: Point2D[] | undefined;
+export class MazePathResponse implements IMazePathResponse {
+    path?: Point2D[];
+
+    constructor(data?: IMazePathResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+        if (_data) {
+            if (Array.isArray(_data["path"])) {
+                this.path = [] as any;
+                for (let item of _data["path"])
+                    this.path!.push(Point2D.fromJS(item, _mappings));
+            }
+        }
+    }
+
+    static fromJS(data: any, _mappings?: any): MazePathResponse | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<MazePathResponse>(data, _mappings, MazePathResponse);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.path)) {
+            data["path"] = [];
+            for (let item of this.path)
+                data["path"].push(item.toJSON());
+        }
+        return data;
+    }
 }
 
-export interface Point2D {
+export interface IMazePathResponse {
+    path?: Point2D[];
+}
+
+export class Point2D implements IPoint2D {
+    x?: number;
+    y?: number;
+
+    constructor(data?: IPoint2D) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+        if (_data) {
+            this.x = _data["x"];
+            this.y = _data["y"];
+        }
+    }
+
+    static fromJS(data: any, _mappings?: any): Point2D | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<Point2D>(data, _mappings, Point2D);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["x"] = this.x;
+        data["y"] = this.y;
+        return data;
+    }
+}
+
+export interface IPoint2D {
     x?: number;
     y?: number;
 }
 
-export interface ProblemDetails {
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any, _mappings?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
+    }
+
+    static fromJS(data: any, _mappings?: any): ProblemDetails | null {
+        data = typeof data === 'object' ? data : {};
+        return createInstance<ProblemDetails>(data, _mappings, ProblemDetails);
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data;
+    }
+}
+
+export interface IProblemDetails {
     type?: string | undefined;
     title?: string | undefined;
     status?: number | undefined;
@@ -436,7 +675,4 @@ function blobToText(blob: any): Observable<string> {
             reader.readAsText(blob);
         }
     });
-}
-
-}
 }

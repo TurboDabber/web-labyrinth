@@ -195,7 +195,6 @@ components:
             items:
               type: integer
               format: int32
-          nullable: true
         algorithmType:
           $ref: '#/components/schemas/MazeAlgorithmType'
       additionalProperties: false
@@ -211,7 +210,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Point2D'
-          nullable: true
       additionalProperties: false
     Point2D:
       type: object

@@ -9,16 +9,17 @@
   "codeGenerators": {
     "openApiToTypeScriptClient": {
       "className": "ApiClient",
-      "moduleName": "api-client",
-      "namespace": "App.Services.Api",
       "output": "C:\\Users\\Pawel\\source\\repos\\Labirynth\\web-labyrinth\\Client\\maze-client\\src\\app\\services\\api\\services.generated.ts",
       "template": "Angular",
       "handleReferences": true,
       "generateDefaultValues": true,
       "generateOptionalParameters": true,
-      "typeStyle": "Interface",
+      "typeStyle": "Class",
+      "queryNullValue": "",
       "markOptionalProperties": true,
-      "useTransformOptionsMethod": true,
+      "useTransformOptionsMethod": false,
+      "generateNullableProperties": false,
+      "nullValue": "undefined",
       "useSingletonProvider": true,
       "injectionTokenType": "InjectionToken"
     }

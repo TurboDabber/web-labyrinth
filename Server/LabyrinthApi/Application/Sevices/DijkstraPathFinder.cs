@@ -49,7 +49,7 @@ public class DijkstraPathFinder: IPathFinder
 
             foreach (var direction in directions)
             {
-                var neighbor = new Point2D(currentPoint.x + direction.x, currentPoint.y + direction.y);
+                var neighbor = new Point2D(currentPoint.X + direction.X, currentPoint.Y + direction.Y);
 
                 if (IsValid(neighbor, maze, rows, cols))
                 {
@@ -69,7 +69,7 @@ public class DijkstraPathFinder: IPathFinder
 
     private bool IsValid(Point2D point, int[,] maze, int rows, int cols)
     {
-        return point.x >= 0 && point.x < rows && point.y >= 0 && point.y < cols && maze[point.x, point.y] == 0;
+        return point.X >= 0 && point.X < rows && point.Y >= 0 && point.Y < cols && maze[point.X, point.Y] == 0;
     }
 
     private List<Point2D> ReconstructPath(Dictionary<Point2D, Point2D> previousMap, Point2D start, Point2D end)

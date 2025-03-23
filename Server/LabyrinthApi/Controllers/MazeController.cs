@@ -75,18 +75,8 @@ public class MazeController : ControllerBase
 
         var result = await _mediator.Send(command);
 
-        if (result == null)
-        {
-            return Ok(new
-            {
-                Path = Array.Empty<Point2D>()
-            });
-        }
 
-        return Ok(new
-        {
-            Path = result
-        });
+        Point2D[] path = result?.Where(p => p != null).ToArray() ?? Array.Empty<Point2D>();
+        return Ok(new MazePathResponse(path));
     }
-
 }
