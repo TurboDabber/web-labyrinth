@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Maze, Service } from '../services/api/services.generated';
+import { ApiService } from '../services/api.service';
+import { Maze } from '../services/api/services.generated';
 
 @Component({
   selector: 'app-main-view',
@@ -28,13 +29,11 @@ import { Maze, Service } from '../services/api/services.generated';
 export class MainViewComponent implements OnInit {
   currentMaze: Maze | null = null;
 
-  constructor(private mazeService: Service) {}
+  constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {}
 
-  onMazeSelected(id: number): void {
-    this.mazeService.mazesGET(id).subscribe((maze) => {
-      this.currentMaze = maze;
-    });
+  async onMazeSelected(id: number) {
+    this.currentMaze = await this.apiService.client.mazesGET(id);
   }
 }

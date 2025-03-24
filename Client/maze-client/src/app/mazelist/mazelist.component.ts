@@ -1,7 +1,7 @@
-import { Maze } from '../services/api/services.generated';
+import { GenerateMazeCommand, GetAllMazes, Maze } from '../services/api/services.generated';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { api_client } from '../services/api/services.generated';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-maze-list',
@@ -90,17 +90,16 @@ export class MazeListComponent implements OnInit {
 
   @Output() mazeSelected = new EventEmitter<number>();
 
-  constructor(private mazeService: Service) {}
+  constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
     this.loadMazes();
     this.initForm();
   }
 
-  loadMazes(): void {
-    this.mazeService.mazesAll(undefined).subscribe((mazes) => {
-      this.mazes = mazes.filter(maze => maze.id !== undefined);
-    });
+  async loadMazes() {
+    var allMazesResult = await this.apiService.client.mazesAll(new GetAllMazes())
+    this.mazes = allMazesResult.filter(x => x.id !== undefined);
   }
 
   initForm(): void {
@@ -135,20 +134,16 @@ export class MazeListComponent implements OnInit {
     return this.mazeForm.get('height')!;
   }
 
-  generateMaze(): void {
+  async generateMaze() {
     if (this.mazeForm.valid) {
       const command = new GenerateMazeCommand();
       command.width = this.widthControl.value;
       command.height = this.heightControl.value;
 
       this.isGenerating = true;
-      this.mazeService.mazesPOST(command).subscribe((mazeId) => {
-        this.loadMazes();
-        this.isGenerating = false;
-      }, (error) => {
-        console.error('Error generating maze:', error);
-        this.isGenerating = false;
-      });
+      await this.apiService.client.mazesPOST(command)
+      await this.loadMazes();
+      this.isGenerating = false;
     }
   }
 

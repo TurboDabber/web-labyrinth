@@ -1,5 +1,6 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { Maze, Service, MazePathResponse, Point2D } from '../services/api/services.generated';
+import { ApiService } from '../services/api.service';
+import { Maze, MazePathResponse, Point2D } from '../services/api/services.generated';
 
 @Component({
   selector: 'app-maze',
@@ -48,7 +49,7 @@ export class MazeComponent {
   selectedCells: Point2D[] = []; 
   pathCells: Point2D[] = []; 
 
-  constructor(private mazeService: Service) {}
+  constructor(private apiService: ApiService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['maze'] && this.maze) {
@@ -81,20 +82,18 @@ export class MazeComponent {
     this.pathCells = [];
   }
 
-  calculatePath(): void {
+  async calculatePath(): Promise<void> {
     if (this.maze?.id && this.selectedCells.length === 2) {
       const [start, end] = this.selectedCells;
-      this.mazeService.path(
+      var resultPath = await this.apiService.client.path(
         this.maze.id,
         start.x,
         start.y,
         end.x,
         end.y
-      ).subscribe((response: MazePathResponse) => {
-        if (response.path) {
-          this.pathCells = response.path.map(p => new Point2D({ x: p.x, y: p.y }));
-        }
-      });
+      )
+      if(resultPath.path)
+        this.pathCells = resultPath.path;
     }
   }
 
